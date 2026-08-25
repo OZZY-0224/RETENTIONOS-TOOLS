@@ -1,6 +1,6 @@
 # RetentionOS Tools
 
-Internal tools and utilities for RetentionOS — built and maintained by [Bort Ventures, LLC](https://bortventures.com).
+Internal tools and utilities for RetentionOS 
 
 ## What's here
 
