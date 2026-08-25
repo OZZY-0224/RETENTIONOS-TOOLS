@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RetentionOS — State Time Board</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #10141b;
+    --card: #171d27;
+    --card-border: #232b38;
+    --amber: #e8a33d;
+    --amber-dim: #4a3f28;
+    --slate: #4a5568;
+    --text: #f2f0ea;
+    --text-dim: #8b95a5;
+    --text-faint: #5b6472;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  header { margin-bottom: 36px; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+  }
+  h1 {
+    font-size: clamp(24px, 3.5vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .sub { color: var(--text-dim); font-size: 14px; margin-top: 6px; max-width: 640px; line-height: 1.5; }
+
+  .lane {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .lane-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .lane-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .lane-clock {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+  }
+  .status.open { background: var(--amber-dim); color: var(--amber); }
+  .status.closed { background: rgba(74,85,104,0.25); color: var(--text-faint); }
+  .status .sdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .states {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+  .state {
+    flex: 1 1 140px;
+    padding: 14px 22px;
+    border-right: 1px solid var(--card-border);
+  }
+  .state:last-child { border-right: none; }
+  .state-name { font-size: 13.5px; font-weight: 500; color: var(--text); }
+  .state-note { font-size: 11px; color: var(--text-faint); margin-top: 2px; line-height: 1.4; }
+
+  .flags {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 700px) { .flags { grid-template-columns: 1fr; } }
+  .flag {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .flag-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 6px;
+  }
+  .flag p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  footer {
+    margin-top: 28px;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="dot"></span>RetentionOS · Live State Time Board</div>
+    <h1>Current time across every licensed state</h1>
+    <div class="sub">Grouped by timezone so you can see at a glance who's together right now. "Open" reflects the commonly-used 8am–9pm local-time calling window — not a substitute for confirming actual carrier or regulatory requirements per state.</div>
+  </header>
+
+  <div id="lanes"></div>
+
+  <div class="flags">
+    <div class="flag">
+      <div class="flag-title">⚠ Arizona doesn't observe Daylight Saving Time</div>
+      <p>Arizona stays on standard Mountain Time year-round. In winter (standard time), it matches Colorado exactly. In summer (DST active elsewhere), Colorado springs forward and Arizona doesn't — so Colorado runs one hour ahead of Arizona for roughly eight months of the year, despite both being "Mountain."</p>
+    </div>
+    <div class="flag">
+      <div class="flag-title">⚠ Tennessee is split across two timezones</div>
+      <p>Middle and West Tennessee (Nashville, Memphis) run Central Time — shown below. East Tennessee (Knoxville, Chattanooga, the Tri-Cities) runs Eastern Time instead. Confirm which region a specific lead is in before relying on this board alone.</p>
+    </div>
+  </div>
+
+  <footer>
+    Times update live, computed from each region's actual IANA timezone (handles Daylight Saving automatically, including Arizona's exception). This board is an operational aid, not a compliance determination — always confirm actual applicable calling-hour rules per state and carrier.
+  </footer>
+</div>
+
+<script>
+  const LANES = [
+    {
+      name: 'Eastern Time',
+      tz: 'America/New_York',
+      states: [
+        { name: 'Florida', note: 'Panhandle west of the Apalachicola River runs Central — most of the state is Eastern' },
+        { name: 'Georgia', note: '' },
+        { name: 'South Carolina', note: '' },
+        { name: 'Maryland', note: '' },
+        { name: 'North Carolina', note: '' },
+        { name: 'Tennessee (East)', note: 'Knoxville, Chattanooga, Tri-Cities — see note below' },
+      ],
+    },
+    {
+      name: 'Central Time',
+      tz: 'America/Chicago',
+      states: [
+        { name: 'Texas', note: 'Far West Texas (El Paso area) runs Mountain — most of the state is Central' },
+        { name: 'Illinois', note: '' },
+        { name: 'Louisiana', note: '' },
+        { name: 'Tennessee (Middle/West)', note: 'Nashville, Memphis — see note below' },
+      ],
+    },
+    {
+      name: 'Mountain Time',
+      tz: 'America/Denver',
+      states: [
+        { name: 'Colorado', note: 'Observes Daylight Saving Time — differs from Arizona below for part of the year' },
+      ],
+    },
+    {
+      name: 'Arizona — Mountain Standard, No DST',
+      tz: 'America/Phoenix',
+      states: [
+        { name: 'Arizona', note: 'Does not observe Daylight Saving Time — see flag below' },
+      ],
+    },
+    {
+      name: 'Pacific Time',
+      tz: 'America/Los_Angeles',
+      states: [
+        { name: 'California', note: '' },
+      ],
+    },
+  ];
+
+  const lanesEl = document.getElementById('lanes');
+
+  LANES.forEach((lane, i) => {
+    const laneEl = document.createElement('div');
+    laneEl.className = 'lane';
+    laneEl.innerHTML = `
+      <div class="lane-head">
+        <div class="lane-name">${lane.name}</div>
+        <div style="display:flex; align-items:center;">
+          <span class="lane-clock" data-clock="${i}">--:--:--</span>
+          <span class="status" data-status="${i}">
+            <span class="sdot"></span><span data-status-text="${i}">—</span>
+          </span>
+        </div>
+      </div>
+      <div class="states">
+        ${lane.states.map(s => `
+          <div class="state">
+            <div class="state-name">${s.name}</div>
+            ${s.note ? `<div class="state-note">${s.note}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+    lanesEl.appendChild(laneEl);
+  });
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    LANES.forEach((lane, i) => {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: lane.tz,
+        hour: 'numeric', minute: 'numeric', second: 'numeric',
+        hour12: true,
+      }).formatToParts(now);
+
+      const get = t => parts.find(p => p.type === t)?.value || '';
+      const hour = get('hour');
+      const minute = pad(get('minute'));
+      const second = pad(get('second'));
+      const dayPeriod = get('dayPeriod');
+
+      const clockEl = document.querySelector(`[data-clock="${i}"]`);
+      clockEl.textContent = `${hour}:${minute}:${second} ${dayPeriod}`;
+
+      // Determine open/closed against an 8am–9pm local window
+      const hour24Parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: lane.tz, hour: 'numeric', hour12: false,
+      }).formatToParts(now);
+      const hour24 = parseInt(hour24Parts.find(p => p.type === 'hour').value, 10);
+      const isOpen = hour24 >= 8 && hour24 < 21;
+
+      const statusEl = document.querySelector(`[data-status="${i}"]`);
+      const statusText = document.querySelector(`[data-status-text="${i}"]`);
+      statusEl.className = 'status ' + (isOpen ? 'open' : 'closed');
+      statusText.textContent = isOpen ? 'Within calling hours' : 'Outside calling hours';
+    });
+  }
+
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>

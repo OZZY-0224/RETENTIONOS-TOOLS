@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:Osvaldo Bort
+N:Bort;Osvaldo;;;
+ORG:Rainbow Insurance Agency
+TITLE:Insurance Agent
+TEL;TYPE=WORK,VOICE:+17547787370
+EMAIL;TYPE=WORK:osvaldo@rainbowinsurance.com
+ADR;TYPE=WORK:;;5471 W. Atlantic Blvd.;Margate;FL;33063;USA
+NOTE:Your Rainbow Insurance Agency agent — save this contact so you recognize future calls and texts.
+END:VCARD
