@@ -689,7 +689,7 @@ RETENTIONOS_CONTINUITY_EVENTS
 
 These are support systems and must not delay proving the core initialization slice.
 
-## 26. Test Discipline
+## 27. Test Discipline
 
 Never create a test record before defining:
 - test case
@@ -712,7 +712,7 @@ is_test_contact alone is not isolation.
 Do not use a different production predicate merely to make a test pass.
 Testing must preserve production business logic while the environment/transport is isolated deliberately.
 
-## 27. Make Change Discipline
+## 28. Make Change Discipline
 
 Before every Make modification:
 1. fresh scenario read
@@ -740,7 +740,7 @@ After every modification:
 
 Use expectedLastEdit where supported.
 
-## 28. Blueprint Preflight
+## 29. Blueprint Preflight
 
 Blueprint Preflight Gate V0 remains a static guardrail.
 
@@ -752,7 +752,7 @@ It checks known bad patterns such as:
 Passing V0 does not certify a scenario.
 Human/system verification remains required before promotion.
 
-## 29. AI Team Roles
+## 30. AI Team Roles
 
 ### Founder
 Product authority and final acceptance.
@@ -792,7 +792,7 @@ Thank-you/review/referral copy moves to Block 1.2.
 ### Claude Cowork
 Read-only live-system inspection and final deployment audit.
 
-## 30. Block 1.1 Acceptance Targets
+## 31. Block 1.1 Acceptance Targets
 
 ### Initialization
 - valid Block 1 evidence initializes
@@ -847,7 +847,7 @@ Read-only live-system inspection and final deployment audit.
 - claim collision prevents duplicate nudge
 - expired abandoned claim recoverable
 
-## 31. Construction Order
+## 32. Construction Order
 
 1. Freeze this revised Block 1.1-only specification
 2. GitHub Copilot review of schemas / fixtures / guardrails
@@ -882,7 +882,7 @@ Read-only live-system inspection and final deployment audit.
 31. founder acceptance
 32. promotion/activation under RETENTIONOS_CONTROL
 
-## 32. Explicitly Out of Scope — Block 1.2
+## 33. Explicitly Out of Scope — Block 1.2
 
 Do not build these inside Block 1.1:
 - thank-you email
@@ -898,19 +898,22 @@ Do not build these inside Block 1.1:
 
 These belong to the new Block 1.2 Referral Agent lane.
 
-## 33. Current Next Action
+## 34. Current Next Action
 
-The first sandbox build directive is now:
-- create new inactive Block 1.1 Continuity Sweep shell
-- no production modification
-- no contact writes
-- no emails
-- no test submissions
-- verify control-gate construction path
-- add read-only Option C bootstrap query only after control path is understood
-- stop for review before any state-writing behavior
+Sandbox Build Directive 001 is accepted.
 
-## 34. Operating Principle
+Current next bounded implementation objective:
+- create or positively verify isolated RETENTIONOS_CONTROL through a supported Make Data Store management path
+- capture its datastore ID and exact schema
+- do not substitute BRIDGE_CONTROL
+- after verification, wire only the read-only control-gate path into inactive scenario 6278154
+- no HubSpot contact writes
+- no email sends
+- no claims writes
+- no Anthropic calls
+- stop for review before adding bootstrap or side-effecting behavior
+
+## 35. Operating Principle
 
 Preserve accepted behavior.
 Inspect before writing.
