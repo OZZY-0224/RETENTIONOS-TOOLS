@@ -1,114 +1,125 @@
-# RetentionOS Block 1.1 — Engineering Review Packet
+# RetentionOS Block 1.1 — Engineering Review Packet v1.1
 
 Source of truth:
 - retentionos/block-1-1/IMPLEMENTATION_SPEC_V1.md
 
 Status:
-- Product behavior substantially frozen
+- Block 1.1 is now formally the Follow-Up Agent only
+- Block 1.2 Referral Agent is a separate lane
+- Sonnet review completed and counter-reviewed
 - No production Block 1 changes authorized
 - No test entries authorized yet
-- Review is implementation-focused
 
-## Claude Sonnet Assignment
+## Accepted Sonnet Construction Findings
 
-Role: construction engineer.
+Accepted with revisions:
+- two-scenario architecture
+- control-first execution
+- fail-closed transition validation
+- state/outcome/flags separation
+- explicit human-specified customer follow-up timing
+- unique datastore claim for due-condition idempotency
+- immediate destination-state readback
+- internal agent nudges before autonomous customer outreach
+- one fixture at a time
 
-Read the implementation spec as authoritative product contract.
+Required corrections already incorporated into the authoritative spec:
+1. exact-6 bootstrap count is a first-migration gate only, not permanent runtime logic
+2. sandbox tests must not silently change the production eligibility predicate
+3. DNC does not bypass the transition table
+4. DEFERRED expiry becomes an agent-due event; no invented next customer timestamp
+5. claim TTL is an engineering parameter, not a guessed product constant
+6. outcome-event dedupe requires a true unique event/submission identifier
+7. thank-you/review/referral logic moved entirely to Block 1.2
+
+## GitHub Copilot Assignment
+
+Role: repository/code integrity reviewer for Block 1.1 only.
+
+Review the authoritative Block 1.1 spec.
+
+Focus on:
+- HubSpot schema definitions
+- state-transition representation
+- required-field validation
+- due-condition claim-key design
+- unique outcome-event identity requirements
+- acceptance-fixture structure
+- blueprint snapshot/provenance format
+- scenario diff-validator design
+- Blueprint Preflight V0 integration
+- deterministic serialization/hashing
+- test isolation controls
+- accidental production coupling
 
 Do not:
-- redesign the state model
-- introduce default callback cadences
-- modify production Block 1
-- invent new product states/outcomes
-- treat BOUND as policy servicing
-- merge G17 into Block 1.1
+- redefine product behavior
+- add callback cadence defaults
+- add referral logic
+- move Make business logic into GitHub
+- create new CRM fields without an explicit operational purpose
 
-Return exactly these sections:
+Return:
+1. REPO STRUCTURE REVIEW
+2. STATE / OUTCOME CONTRACT VALIDATION APPROACH
+3. ACCEPTANCE FIXTURE FORMAT
+4. SNAPSHOT / HASH / DIFF DESIGN
+5. STATIC GUARDRAILS
+6. UNIQUE EVENT-ID / IDEMPOTENCY REVIEW
+7. TEST ISOLATION RISKS
+8. RECOMMENDED FIRST CODED TOOL
 
-1. PROPOSED MAKE TOPOLOGY
-   - Scenario A: Outcome Intake + State Engine
-   - Scenario B: Continuity Sweep
-   - module-by-module sequence
-   - route/filter logic
-   - exact fail-closed points
+## Microsoft Copilot Assignment
 
-2. HUBSPOT IMPLEMENTATION MAP
-   - property definitions
-   - enum internal values
-   - write points
-   - readback verification points
+Role: Microsoft ecosystem / Outlook-side support.
 
-3. DATASTORE / IDEMPOTENCY MAP
-   - RETENTIONOS_CONTROL
-   - RETENTIONOS_CONTINUITY_CLAIMS
-   - optional exceptions/events stores
-   - claim acquisition / confirmation / expiry behavior
+Review only:
+- internal Follow-Up Agent notification delivery through Microsoft 365 / Outlook
+- sender/display identity possibilities
+- reliable internal email delivery
+- link/button handling
+- mailbox/folder isolation for sandbox testing
+- any transport-side constraints relevant to agent notifications
 
-4. INPUT SURFACE RECOMMENDATION
-   - smallest safe V1 agent outcome-input mechanism
-   - preserve rule: agent reports outcome; system derives state
+Do not define state logic.
 
-5. RACE CONDITIONS / FAILURE MODES
-   - concurrent sweep
-   - partial execution
-   - HubSpot eventual consistency
-   - repeated polling
-   - suppression conflicts
-   - gate unreadable/missing
+## Gemini Assignment
 
-6. SANDBOX TEST PLAN
-   - one fixture at a time
-   - no production-customer impact
-   - explicit expected destination state
-   - exact isolation requirements
+Role: Block 1.1 internal communication library only.
 
-7. IMPLEMENTATION CONFLICTS
-   - only report a conflict if the supplied contract cannot be implemented safely as written
-   - distinguish platform constraint from product ambiguity
+Generate candidate wording for:
+- Follow-Up Due
+- Outcome Still Needed
+- Deferred Follow-Up Now Due
+- Re-entry Requires Attention
+- Review Required
 
-8. MINIMUM BUILD ORDER
-   - smallest executable sequence
-   - do not batch unrelated behaviors
+Do not create thank-you/review/referral copy here.
+Those belong to Block 1.2.
 
-Decision labels:
+## Cowork Assignment
+
+After implementation, inspect:
+- new Scenario A
+- new Scenario B
+- exact control-gate position
+- bootstrap predicate
+- due query
+- claim implementation
+- internal notification path
+- outcome-input routing
+- suppression filters
+- sandbox isolation
+- trigger safety
+- no Block 1 modification
+- no Block 1.2 logic inside Block 1.1
+
+Preferred outputs:
 - PROPOSAL COMPATIBLE
 - PROPOSAL CONFLICT
 - EXISTING ASSET REUSABLE
 - PRODUCT DECISION REQUIRED
-
-## GitHub Copilot Assignment
-
-Role: repository/code integrity reviewer.
-
-Review the same implementation spec and validate the engineering-control-plane design.
-
-Focus on:
-- schema validity
-- state-transition representation
-- acceptance-fixture structure
-- blueprint snapshot/provenance format
-- scenario diff validation strategy
-- preflight static checks
-- referral-lineage schema correctness
-- testability
-- accidental coupling to production
-- deterministic serialization/hashing where used
-
-Do not:
-- redefine product behavior
-- move Make business logic into code
-- invent new CRM fields
-- turn repository assets into live customer storage
-
-Return:
-1. REPO STRUCTURE REVIEW
-2. CONTRACT VALIDATION APPROACH
-3. TEST FIXTURE FORMAT
-4. SNAPSHOT / HASH / DIFF DESIGN
-5. REFERRAL SCHEMA REVIEW
-6. STATIC GUARDRAILS
-7. RISKS / MISSING ENGINEERING CONTROLS
-8. RECOMMENDED FIRST CODED TOOL
+- RUNTIME DEFECT
 
 ## Review Rule
 
