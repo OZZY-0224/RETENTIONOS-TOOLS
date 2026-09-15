@@ -677,7 +677,7 @@ HubSpot automation/token discipline:
 - RetentionOS behavior should not depend on HubSpot workflow automation when Make can own the behavior cleanly
 - preserve portability and low HubSpot automation-token consumption
 
-## 26. Exceptions and Event History
+## 25. Exceptions and Event History
 
 Recommended lightweight support:
 
@@ -689,7 +689,7 @@ RETENTIONOS_CONTINUITY_EVENTS
 
 These are support systems and must not delay proving the core initialization slice.
 
-## 27. Test Discipline
+## 26. Test Discipline
 
 Never create a test record before defining:
 - test case
@@ -712,7 +712,7 @@ is_test_contact alone is not isolation.
 Do not use a different production predicate merely to make a test pass.
 Testing must preserve production business logic while the environment/transport is isolated deliberately.
 
-## 28. Make Change Discipline
+## 27. Make Change Discipline
 
 Before every Make modification:
 1. fresh scenario read
@@ -740,7 +740,7 @@ After every modification:
 
 Use expectedLastEdit where supported.
 
-## 29. Blueprint Preflight
+## 28. Blueprint Preflight
 
 Blueprint Preflight Gate V0 remains a static guardrail.
 
@@ -752,7 +752,7 @@ It checks known bad patterns such as:
 Passing V0 does not certify a scenario.
 Human/system verification remains required before promotion.
 
-## 30. AI Team Roles
+## 29. AI Team Roles
 
 ### Founder
 Product authority and final acceptance.
@@ -792,7 +792,7 @@ Thank-you/review/referral copy moves to Block 1.2.
 ### Claude Cowork
 Read-only live-system inspection and final deployment audit.
 
-## 31. Block 1.1 Acceptance Targets
+## 30. Block 1.1 Acceptance Targets
 
 ### Initialization
 - valid Block 1 evidence initializes
@@ -847,7 +847,7 @@ Read-only live-system inspection and final deployment audit.
 - claim collision prevents duplicate nudge
 - expired abandoned claim recoverable
 
-## 32. Construction Order
+## 31. Construction Order
 
 1. Freeze this revised Block 1.1-only specification
 2. GitHub Copilot review of schemas / fixtures / guardrails
@@ -882,7 +882,7 @@ Read-only live-system inspection and final deployment audit.
 31. founder acceptance
 32. promotion/activation under RETENTIONOS_CONTROL
 
-## 33. Explicitly Out of Scope — Block 1.2
+## 32. Explicitly Out of Scope — Block 1.2
 
 Do not build these inside Block 1.1:
 - thank-you email
@@ -898,7 +898,7 @@ Do not build these inside Block 1.1:
 
 These belong to the new Block 1.2 Referral Agent lane.
 
-## 34. Current Next Action
+## 33. Current Next Action
 
 Sandbox Build Directive 001 is accepted.
 
@@ -913,7 +913,7 @@ Current next bounded implementation objective:
 - no Anthropic calls
 - stop for review before adding bootstrap or side-effecting behavior
 
-## 35. Operating Principle
+## 34. Operating Principle
 
 Preserve accepted behavior.
 Inspect before writing.
