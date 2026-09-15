@@ -1,68 +1,91 @@
-# RetentionOS — Block 1.1 Implementation Specification v1
+# RetentionOS — Block 1.1 Follow-Up Agent Implementation Specification v1.1
 
-Status: DRAFT FOR ENGINEERING REVIEW
+Status: AUTHORITATIVE IMPLEMENTATION BASELINE — BLOCK 1.2 SPLIT APPLIED
 Branch: block-1-1-v1-spec
 Product authority: Founder
 Architecture coordinator: ChatGPT
 Implementation review: Claude Sonnet
-Code/repository review: GitHub Copilot
+Repository/code review: GitHub Copilot
 Microsoft ecosystem support: Microsoft Copilot
-Communications-library support: Gemini
-Live inspection / deployment audit: Claude Cowork
+Communications support: Gemini
+Live deployment audit: Claude Cowork
 
 ## 1. Product Mission
 
-Block 1.1 is RetentionOS's AI-assisted sales continuity layer.
+Block 1.1 is the RetentionOS Follow-Up Agent.
 
-Block 1 answers:
-- what happened during the callback / quote interaction?
-
-Block 1.1 answers:
-- what needs to happen next?
-- who owns it?
-- when is it supposed to happen?
-- what happened when that action occurred?
-- how is progress preserved until the sales pursuit reaches a legitimate outcome?
+Its sole mission is:
+- preserve continuity of an active sales pursuit
+- surface the next required agent action at the human-specified time
+- require the human agent to report the call outcome
+- validate the reported outcome
+- derive the next continuity state
+- repeat until the pursuit reaches BOUND or LOST
 
 Block 1.1 is not:
+- referral generation
+- thank-you/review/referral closeout
 - policy servicing
 - CSR workflow
 - claims workflow
 - renewal management
 - active-policy retention
+- G17 market re-exposure
 
-The only approved post-bind extension in Block 1.1 is:
-- thank-you
-- customer-experience / review request
-- referral-generation closeout
+Those boundaries are now explicit.
 
-Anything involving ongoing bound-policy servicing belongs to Block 2.
+## 2. Block Architecture
 
-## 2. Locked Architecture
+### Block 1
+Transactional intake / quote / trusted evidence engine.
 
-### Option C
+### Block 1.1
+Follow-Up Agent.
+Continuity pursuit until a legitimate terminal sales outcome.
+
+### Block 1.2
+Referral Agent.
+New separate discovery/build lane.
+
+Block 1.2 owns:
+- post-bind thank-you
+- experience/review request
+- referral request
+- referral links / QR
+- referral attribution
+- referral lineage
+- routing new referral leads back into Block 1
+
+Block 1.1 must not implement those behaviors.
+
+### Block 2
+CSR / bound-policy servicing lane.
+
+## 3. Locked Option C Architecture
+
 Production Block 1 scenario 6221572 is not modified to initialize Block 1.1.
 
-Block 1 owns trusted evidence.
-Block 1.1 owns continuity state and derives initial state from trusted Block 1 / HubSpot evidence.
+Block 1 owns trusted facts.
+Block 1.1 owns continuity state and derives its initial state from trusted Block 1 / HubSpot evidence.
 
-### Existing asset roles
+Do not reopen Block 1 initialization writes unless the founder explicitly changes Option C.
+
+## 4. Authoritative Asset Roles
 
 - Jotform 262458040681154
-  - current role: production callback intake
-  - historical SANDBOX naming is irrelevant
+  - production callback intake
 
 - Jotform 260774321233047
-  - current role: retired callback tracker
+  - retired callback tracker
 
 - Make 6221572
-  - current role: active production Block 1
+  - active production Block 1
   - do not modify for Block 1.1 initialization
 
 - Make 6254611
-  - current role: engineering sandbox
+  - engineering sandbox
   - inactive
-  - not a Block 1.1 scenario
+  - not Block 1.1
   - must be isolated before fresh end-to-end Block 1 -> Block 1.1 testing
 
 - Make 5061111
@@ -71,91 +94,85 @@ Block 1.1 owns continuity state and derives initial state from trusted Block 1 /
 
 - Make 6147956
   - forensic-only contaminated sandbox
-  - never use as implementation base
+  - never implementation base
 
 - Make 6189260 / BRIDGE_CONTROL 145954
-  - governance-pattern reference only
-  - never connect RetentionOS directly to BRIDGE_CONTROL
+  - pattern reference only
+  - never wire RetentionOS to BRIDGE_CONTROL
 
-## 3. Closed Block 1 Contracts
+## 5. Closed Block 1 Contracts
 
 Do not reopen without contradictory runtime evidence:
-
 - deterministic 3/3 identity resolution
-- R1 MATCH / R2 COLLISION / R3 NEW / R0 halt
+- R1 / R2 / R3 / R0
 - C-13 fail-closed validation
 - retry:false
 - lifecycle synchronization
 - callback_type preservation
 - call_disposition non-use
-- PIF behavior
-- SR22 / FR44 / None behavior
+- PIF
+- SR22 / FR44 / None
 - appointment display contract
-- vCard semantics
+- vCard behavior
 - HubSpot timeline logging
 
 Block 1.1 consumes trusted output and does not re-perform those responsibilities.
 
-## 4. Accepted V1 State Model
+## 6. Accepted State Model
 
 Exactly five states:
-
 - FOLLOWUP_OPEN
 - AWAITING_CUSTOMER
 - DEFERRED
 - BOUND
 - LOST
 
+FOLLOWUP_DUE is not a state.
+It is derived from:
+current_time >= next_follow_up_at
+
+review_required is not a state.
+It is a cross-cutting flag.
+
 ### FOLLOWUP_OPEN
-Active sales pursuit where another agent action is required.
+An agent action is required.
 
 ### AWAITING_CUSTOMER
-Current agent action is complete and the prospect owes the next response/action.
+The agent has completed the current action and the prospect owes the next response/action.
 
 ### DEFERRED
-The prospect explicitly requested a legitimate delay until a specified future time.
+The prospect explicitly requested a pause until a specified future time.
 
 ### BOUND
-Human-authoritative successful terminal sales state.
+Human-authoritative successful terminal state for Block 1.1.
 
-Meaning inside Block 1.1:
-- sale written
-- stop sales chasing
-- permit one-time sales closeout
-- do not begin policy servicing
+When BOUND is recorded:
+- Block 1.1 stops pursuing the lead
+- Block 1.1 does not perform post-bind closeout
+- BOUND becomes a future handoff event for Block 1.2
 
 ### LOST
-Human-authoritative unsuccessful terminal sales state.
+Human-authoritative unsuccessful terminal state.
 
 Permanent rule:
 No response != Lost.
 
-## 5. State / Outcome / Flags Separation
+## 7. State / Outcome / Flags Separation
 
-### State
-callback_state
-Answers:
-- where is the pursuit operationally?
+callback_state = where the pursuit is
 
-### Outcome
-callback_outcome
-Answers:
-- what happened in the human interaction?
+callback_outcome = what happened in the human interaction
 
-### Flags
-Represent cross-cutting conditions, not workflow position.
-
-Examples:
+flags = additional conditions such as:
 - review_required
 - retention_contact_suppressed
 - testing indicators
 
 Do not create state-machine explosion.
 
-## 6. Accepted Outcome Family
+## 8. Canonical Outcomes
 
-Current canonical outcomes:
-
+Current approved outcome family:
 - Successful Bind
 - Rate Changed / Follow Up
 - Still Need Time / Credentials / Payment
@@ -171,7 +188,7 @@ Closed mappings:
 
 ### Customer Declined
 -> LOST
--> preserve outcome = Customer Declined
+-> preserve outcome
 
 ### Priced Out
 -> LOST
@@ -186,101 +203,243 @@ Closed mappings:
 -> never auto-LOST
 
 ### Still Need Time / Credentials / Payment
-Depends on subordinate truth:
-- customer owes something and agent has no active scheduled action -> AWAITING_CUSTOMER
-- agent owes action at explicit timestamp -> FOLLOWUP_OPEN + next_follow_up_at
-- customer explicitly asks pursuit be paused until a date/time -> DEFERRED + deferred_until
+Depends on subordinate human facts:
+- customer owes something and no active agent action is scheduled -> AWAITING_CUSTOMER
+- agent owes action at explicit next time -> FOLLOWUP_OPEN + next_follow_up_at
+- customer explicitly asks pursuit be paused -> DEFERRED + deferred_until
 
 ### Rate Changed / Follow Up
 Remains active.
-State is derived from who owes the next action and whether an explicit follow-up time exists.
+State depends on who owes next action and the explicit timing supplied.
 
-If a current-state / outcome combination is not explicitly valid:
+Any current-state/outcome combination not explicitly allowed:
 - fail closed
-- emit ILLEGAL TRANSITION
-- do not guess a plausible state
+- ILLEGAL TRANSITION
+- no guessed destination state
 
-## 7. Follow-Up Timing Contract
+## 9. Follow-Up Timing Contract
 
-Human-specified timing is authoritative.
+All customer follow-up timing is human-specified.
 
 Do not invent:
 - +2 hours
 - +24 hours
 - +48 hours
-- callback-type cadence defaults
-- arbitrary follow-up windows
+- callback-type cadence
+- fallback windows
 
 If an outcome requires another follow-up:
-- a valid explicit next_follow_up_at is required
+- next_follow_up_at must be explicitly supplied
 
 If required timing is missing:
 - fail validation
-- do not create a fallback time
+- do not synthesize a fallback
 
 If no further follow-up is required:
 - next_follow_up_at is not required
 
-Due is derived:
-current_time >= next_follow_up_at
+## 10. Follow-Up Agent Identity
 
-FOLLOWUP_DUE is not a persistent state.
+The AI workflow component is formally named:
 
-## 8. Deferred Contract
+RetentionOS Follow-Up Agent
 
-DEFERRED means customer-directed intentional suspension.
+The human sales agent remains the authoritative HubSpot owner.
+
+The Follow-Up Agent is not the owner of the lead.
+It is the sales-continuity assistant assigned to push the human owner to complete the next action and report the outcome.
+
+## 11. Internal Email Notification Contract
+
+When a FOLLOWUP_OPEN condition becomes due, the Follow-Up Agent should present itself to the assigned human agent through an internal email notification.
+
+The source of truth is not AI memory.
+The source of truth is:
+- callback_state
+- next_follow_up_at
+- assigned HubSpot owner
+- idempotent due-event claim
+
+Conceptual email:
+
+From/display identity:
+RetentionOS Follow-Up Agent
+
+Subject:
+Follow-Up Due — <Contact> — <Callback Type>
+
+Email should provide:
+- contact identity
+- callback type / reason
+- current continuity state
+- last known customer interaction context where available
+- explicit intended follow-up time
+- expected next action
+- link/button to LOG CALL OUTCOME
+- optional link to open the contact in HubSpot
+
+The internal notification is an agent-workflow action, not customer outreach.
+
+## 12. Due Notification Idempotency
+
+For a due follow-up:
+
+claim_key =
+contact_id|FOLLOWUP|next_follow_up_at
+
+Flow:
+1. due condition found
+2. attempt unique claim
+3. only successful claimant may send agent email
+4. send internal agent notification
+5. confirm claim
+
+If the same record is seen again for the same due timestamp:
+- existing valid claim prevents another notification
+
+A later legitimate next_follow_up_at creates a new due condition and therefore a new claim key.
+
+This is how the Follow-Up Agent can present itself at every intended follow-up time without duplicate sends for the same due condition.
+
+## 13. Outcome Completion Doctrine
+
+A follow-up is not complete when the reminder email is sent.
+
+A follow-up cycle is complete only when:
+- the human agent records an authorized outcome
+or
+- the workflow remains visibly awaiting that outcome
+
+Do not confuse:
+notification delivered
+with:
+sales action completed
+
+This distinction is authoritative.
+
+## 14. Outcome Verification Responsibility
+
+The human agent reports what happened.
+
+The machine does not infer:
+- BOUND
+- LOST
+- Customer Declined
+- DNC
+from silence, elapsed time, repeated failed calls, or task age.
+
+The Follow-Up Agent / State Engine verifies:
+- outcome is canonical
+- current transition is legal
+- required subordinate facts are present
+- explicit next timing exists where required
+- suppression rules are respected
+
+The machine verifies workflow completeness and contract validity, not the truthfulness of the human's account of the conversation.
+
+## 15. Outcome Input Surface
+
+The V1 input surface remains an implementation decision.
+
+Preferred qualities:
+- atomic event
+- unique event/submission ID
+- contact_id
+- agent identity
+- canonical callback_outcome
+- subordinate facts
+- explicit next_follow_up_at when required
+- deferred_until when required
+- submission timestamp
+
+A small dedicated Jotform agent-outcome form is currently a strong candidate because it naturally provides a unique submission event and conditional required fields.
+
+A HubSpot-native controlled action remains a valid alternative if live inspection proves it can provide equally atomic, deterministic input without exposing callback_state for direct editing.
+
+Do not accept weak deduplication such as timestamp-rounded-to-minute event identity.
+
+## 16. Missing Outcome Follow-Up
+
+The Follow-Up Agent must distinguish:
+- due notification sent
+from:
+- outcome recorded
+
+If a due notification has been sent but no authorized outcome is recorded, the lead must remain visibly unresolved.
+
+A future internal agent reminder may state:
+Outcome still needed — <Contact>
+
+This reminder must not alter customer state automatically.
+
+The exact reminder timing for missing agent outcomes is not yet part of the customer follow-up cadence contract and should not be invented during the first build slice.
+
+## 17. Deferred Contract
+
+DEFERRED means legitimate customer-directed suspension.
 
 Required:
 - callback_state = DEFERRED
-- deferred_until = explicit timestamp/date-time
+- deferred_until = explicit timestamp
 
-If customer re-enters before deferred_until:
-- customer action supersedes old deferment
-- DEFERRED -> FOLLOWUP_OPEN according to new valid context
-- old deferred date no longer governs current pursuit
+When deferred_until is reached:
+- the deferment ends
+- the agent's action becomes due
+- transition to FOLLOWUP_OPEN
+- stage_entered_date should reflect the deferment boundary
+- clear deferred_until
+- create one idempotent agent-facing nudge for the expiry condition
+- do not invent a new customer follow-up timestamp
 
-## 9. Re-Entry Contract
+If the customer re-enters before deferred_until:
+- customer action supersedes the deferment
+- DEFERRED -> FOLLOWUP_OPEN according to current valid context
 
-### Active + same callback type
+## 18. Re-Entry Contract
+
+### Active + same callback_type
 - same pursuit
-- do not create parallel cycle by default
-- refresh context / timing according to approved outcome
+- refresh current context
+- no parallel cycle by default
 
-### Active + changed callback type
-- same current sales pursuit
+### Active + changed callback_type
+- same active pursuit
 - latest valid callback_type becomes operational intent
 
-### LOST + new valid intake
+### LOST + valid new intake
 - legitimate re-engagement
 - LOST -> FOLLOWUP_OPEN
-- preserve prior historical LOST outcome/evidence
-- new active cycle becomes current continuity cycle
+- preserve prior LOST history
 
 ### BOUND + new intake
 - never auto-reopen
-- may represent another policy, vehicle, household member, transaction, or need
-- if contact-level data cannot distinguish opportunity identity:
+- may represent a new opportunity
+- if contact-level data cannot distinguish the new transaction:
   CONSTRAINT / GAP DISCOVERED — PRODUCT DECISION REQUIRED
 
-## 10. Option C Bootstrap Contract
+### DNC + later voluntary re-entry
+Unresolved product rule:
+- whether suppression is automatically cleared is not yet accepted
+
+Fail-safe current direction:
+- pursuit may be recognized as re-engagement only under an approved transition
+- retention_contact_suppressed remains true unless explicitly cleared by an authorized human action
+
+This remains a product decision before automated outreach from such a re-entry.
+
+## 19. Option C Bootstrap
 
 Initialization is idempotent and initialization-only.
 
-Known strong evidence fields already present in HubSpot:
-- callback_type
-- lifecyclestage
-- notes_last_contacted
-- vcard_sent
-- hubspot_owner_id
-- is_test_contact
-- call_notes
+Hardened predicate:
 
-Hardened initialization predicate to verify before write:
-
-- callback_state NOT_HAS_PROPERTY
-- is_test_contact HAS_PROPERTY
-- is_test_contact NEQ true
-- notes_last_contacted HAS_PROPERTY
+callback_state NOT_HAS_PROPERTY
+AND
+is_test_contact HAS_PROPERTY
+AND
+is_test_contact NEQ true
+AND
+notes_last_contacted HAS_PROPERTY
 
 On successful initialization:
 - callback_state = awaiting_customer
@@ -289,23 +448,32 @@ On successful initialization:
 Do not use:
 - now
 - createdate
-- inferred appointment timing
+- appointment inference
 
-Bootstrap must never overwrite an already initialized record.
+Bootstrap never overwrites an initialized record.
 
-Previously measured expected first-run eligible population:
-- 6 contacts
+### First controlled migration gate
+Previously measured expected eligible count:
+6
 
-Controlled deployment gate:
-- before writes, final eligibility query must equal exactly 6
-- if count differs, halt
-- after successful initialization, same predicate should return 0
+Before the first production initialization write:
+- re-run the final predicate
+- expected count must equal exactly 6
+- otherwise halt and investigate
 
-No production bootstrap write is authorized merely by this specification.
+After that controlled migration:
+- same predicate should return 0
 
-## 11. HubSpot Schema
+### Ongoing production bootstrap
+The exact-6 rule is not permanent.
 
-Observed existing useful properties:
+After rollout, newly completed legitimate Block 1 contacts satisfying the same predicate must initialize normally.
+
+A future non-zero eligible count is expected normal intake, not automatically an exception.
+
+## 20. HubSpot Schema
+
+Observed existing fields:
 - callback_type
 - lifecyclestage
 - notes_last_contacted
@@ -314,7 +482,7 @@ Observed existing useful properties:
 - is_test_contact
 - call_notes
 
-Observed Block 1.1 properties not yet present:
+Block 1.1 fields currently not present at last verification:
 - callback_state
 - stage_entered_date
 - next_follow_up_at
@@ -325,11 +493,10 @@ Observed Block 1.1 properties not yet present:
 - retention_contact_suppressed
 - retention_contact_suppression_reason
 
-Current intended field contract:
+Intended V1:
 
 ### callback_state
-single enumeration
-internal values:
+enumeration:
 - followup_open
 - awaiting_customer
 - deferred
@@ -343,8 +510,7 @@ datetime
 datetime
 
 ### callback_outcome
-single enumeration
-internal values proposed:
+enumeration:
 - successful_bind
 - rate_changed_follow_up
 - still_need_time_credentials_payment
@@ -353,100 +519,65 @@ internal values proposed:
 - customer_declined
 - do_not_contact
 
-### last_follow_up_at
-hold until a precise event definition is confirmed during implementation.
-Do not create just because it sounds useful.
-
 ### deferred_until
 datetime
-
-### review_required
-boolean
-cross-cutting flag
 
 ### retention_contact_suppressed
 boolean
 
 ### retention_contact_suppression_reason
-enumeration
-initial V1 value:
+enumeration:
 - do_not_contact
 
-Do not create follow_up_owner unless existing HubSpot ownership proves insufficient.
+### review_required
+hold unless implementation evidence requires explicit V1 use
 
-## 12. Runtime Architecture
+### last_follow_up_at
+hold until a precise event definition is proven necessary
 
-Block 1.1 should use two new Make scenarios.
+Do not create follow_up_owner unless HubSpot ownership proves insufficient.
+
+## 21. Runtime Architecture
+
+Two new Make scenarios.
 
 ### Scenario A — Outcome Intake + State Engine
-
-Human/event-driven.
+Event-driven.
 
 Responsibilities:
-- receive approved agent-authoritative outcome input
-- read control gate first
-- fetch current contact state
-- validate current state
+- receive atomic agent outcome event
+- read RETENTIONOS_CONTROL first
+- fetch current contact
+- validate state
 - validate canonical outcome
-- validate required subordinate facts
-- derive state deterministically
-- set timestamps
-- set deferment where applicable
-- set suppression where applicable
-- prevent machine-authored BOUND / LOST
-- fail visibly on illegal transitions
-- preserve historical event evidence where implemented
+- validate subordinate facts
+- validate transition
+- validate required timestamps
+- derive next state
+- write HubSpot
+- read back destination state
+- record exception/event evidence where implemented
+- do not perform Block 1.2 behavior
 
-Agent reports what happened.
-The state engine determines what that means.
-
-Agents should not directly set arbitrary callback_state values.
+DNC must still pass through the transition contract.
+Do not force LOST regardless of current state.
 
 ### Scenario B — Continuity Sweep
+Scheduled.
 
-Scheduled/time-driven.
+Responsibilities:
+1. initialize eligible uninitialized contacts
+2. process due FOLLOWUP_OPEN conditions
+3. process DEFERRED expiry
+4. support claim recovery/idempotency
 
-V1 responsibilities:
-1. initialization
-2. FOLLOWUP_OPEN due processing
-3. DEFERRED expiration processing
+Top-level control gate must fail closed.
 
-At start:
-- read RETENTIONOS_CONTROL
-- only exact CLEAR permits side effects
+## 22. RETENTIONOS_CONTROL
 
-Initialization branch:
-- search eligible uninitialized records
-- first controlled deployment count gate = exact expected count
-- write awaiting_customer + stage_entered_date from notes_last_contacted
-- never overwrite initialized state
+Separate RetentionOS control mechanism.
 
-FOLLOWUP_OPEN branch:
-- callback_state = followup_open
-- next_follow_up_at <= now
-- not test
-- not suppressed
-- acquire unique claim
-- create one agent-facing nudge
-- confirm claim
-- avoid duplicate side effect
-
-DEFERRED branch:
-- callback_state = deferred
-- deferred_until <= now
-- not test
-- not suppressed
-- transition to FOLLOWUP_OPEN according to approved rules
-- clear old deferment
-- preserve actual transition boundary timestamp
-- do not invent next follow-up time
-
-## 13. RetentionOS Control
-
-Create isolated RetentionOS-side control, not BRIDGE_CONTROL.
-
-Concept:
-RETENTIONOS_CONTROL
+Do not connect to BRIDGE_CONTROL.
 
 Fields:
 - gate_state
@@ -454,29 +585,20 @@ Fields:
 - updated_at
 - updated_by
 
-Allowed V1 values:
+V1:
 - CLEAR
 - ENGAGED
 
-Exact behavior:
-- CLEAR -> side effects may proceed
-- ENGAGED -> zero side effects
-- missing -> zero side effects
-- typo -> zero side effects
-- malformed -> zero side effects
-- unreadable -> zero side effects
-- unknown -> zero side effects
+Only exact CLEAR permits side effects.
 
-No PAUSED / DRAIN in V1 unless demonstrated need appears.
+Anything else:
+zero side effects.
 
-## 14. Continuity Claim / Idempotency Contract
+## 23. RETENTIONOS_CONTINUITY_CLAIMS
 
-Scheduled processing must tolerate repeated polling.
+Recommended isolated datastore.
 
-Recommended isolated datastore:
-RETENTIONOS_CONTINUITY_CLAIMS
-
-Conceptual fields:
+Fields:
 - claim_key
 - contact_id
 - condition_type
@@ -487,317 +609,66 @@ Conceptual fields:
 - confirmed_at
 - scenario_execution_id
 
-Unique key:
-contact_id|condition_type|due_timestamp
+Lifecycle:
+CLAIMED -> CONFIRMED
+or
+CLAIMED -> EXPIRED / eligible for controlled recovery
 
-Claim lifecycle:
-- CLAIM
-- ACT
-- CONFIRM
-- EXPIRE if abandoned
+Claim TTL is an engineering parameter.
+Do not hardcode an arbitrary product value before observing actual runtime duration and selecting a safety margin.
 
-A valid existing claim for the same due condition:
-- skip duplicate action
+## 24. Exceptions and Event History
 
-Expired unconfirmed claim:
-- eligible for controlled recovery
+Recommended lightweight support:
 
-## 15. Exception Visibility
-
-Recommended lightweight store:
 RETENTIONOS_EXCEPTIONS
+- visible fail-closed evidence
 
-Purpose:
-- refused operation must remain visible
-
-Candidate exception types:
-- INITIALIZATION_EVIDENCE_MISSING
-- INVALID_STATE
-- INVALID_OUTCOME
-- ILLEGAL_TRANSITION
-- CONTROL_INVALID
-- CLAIM_STUCK
-- MISSING_REQUIRED_TIMESTAMP
-- SUPPRESSION_CONFLICT
-
-Doctrine:
-bad or incomplete truth -> no side effect -> visible exception
-
-## 16. Continuity Event History
-
-Recommended lightweight store:
 RETENTIONOS_CONTINUITY_EVENTS
+- immutable transition/history evidence
 
-Purpose:
-- preserve sales history through re-entry and state changes
+These are support systems and must not delay proving the core initialization slice.
 
-Candidate event types:
-- INITIALIZED
-- FOLLOWUP_DUE
-- NUDGE_CREATED
-- CUSTOMER_REPLIED
-- DEFERRED
-- DEFERMENT_RELEASED
-- REENTRY
-- BOUND
-- LOST
-- DNC
-- BOUND_CLOSEOUT_SENT
-- REFERRAL_CREATED
+## 25. Test Discipline
 
-History is not a replacement for current HubSpot state.
-
-## 17. Agent-Facing Nudge Contract
-
-V1 should primarily create internal sales-assistant prompts, not autonomous customer follow-up.
-
-A useful nudge should tell the agent:
-- who
-- why
-- what happened last
-- what is due
-- when it is due
-- what next action is expected
-
-The AI assistant is intended to push workflow, protect conversion, and reduce neglected opportunities.
-
-## 18. Bound Sales Closeout
-
-BOUND stops the active sales chase.
-
-One final sales-side closeout is permitted:
-
-BOUND
--> stop continuity timers
--> one-time closeout
--> thank-you email
--> rate-your-experience CTA
--> referral CTA
-
-This is not policy servicing.
-
-A one-time closeout idempotency mechanism is required.
-Candidate concept:
-- bound_closeout_sent
-or equivalent event/claim
-
-Do not create a new workflow state such as THANK_YOU_SENT.
-
-## 19. Referral Agent
-
-Referral Agent is a sales-originated shared service, initially owned by Block 1.1.
-
-Responsibilities:
-
-### Closeout activation
-- thank-you
-- review request
-- referral request
-- unique referral identity / link / QR
-
-### Referral attribution
-- identify immediate referrer
-- identify root referrer
-- preserve agent ownership
-- preserve referral generation
-- set lead source = Client Referral
-
-### Referral lineage
-Track relationship chain across generations.
-
-Conceptual record:
-- referral_id
-- referrer_contact_id
-- referred_contact_id
-- root_contact_id
-- parent_referral_id
-- referral_agent_id
-- generation
-- referral_token
-- status
-- created_at
-- submitted_at
-- bound_at
-
-Do not store live customer data in GitHub.
-GitHub stores schema, code, contracts, fixtures, validators and static assets only.
-
-## 20. Referral Flow
-
-Preferred consent-safe flow:
-
-BOUND customer
--> receives unique referral link / QR
--> shares link voluntarily
--> referred person submits their own information
--> lead_source = Client Referral
--> agent attribution preserved
--> new lead enters normal Block 1 path
--> Block 1.1 follows it
--> if BOUND, Referral Agent can start next generation
-
-Do not create a separate referral sales engine.
-
-## 21. Jotform Role
-
-Possible new future assets:
-- customer-experience / rating form
-- referral lead form
-- agent outcome intake only if HubSpot UI is not sufficiently clean
-
-Do not repurpose retired Callback Tracker by default.
-
-No form should be created or published until its exact field contract, routing, and acceptance case are defined.
-
-## 22. Appointment Timing
-
-Do not rely on display-only appointment strings for Block 1.1 V1 due logic.
-
-Do not infer missing year.
-
-APPOINTMENT_DUE should not be introduced until a structured reliable appointment timestamp exists.
-
-## 23. Contract Halt Blind Spot
-
-R0 invalid contract creates no contact.
-Block 1.1 is structurally blind to those halted intakes.
-
-Accepted V1 blind spot.
-Do not modify Block 1 merely to solve it.
-
-## 24. R2 Collision
-
-Existing R2 collision review task remains the human review mechanism.
-
-Do not reopen Block 1 merely to seed review_required.
-
-If later runtime evidence proves Block 1.1 needs explicit R2 visibility, raise a bounded implementation decision.
-
-## 25. AI Team Responsibilities
-
-### Founder
-- product authority
-- final behavior rulings
-- acceptance
-
-### ChatGPT
-- authoritative project context
-- architecture
-- build sequencing
-- direct backend work where available
-- counter-review
-- acceptance
-- promotion logic
-
-### ChatGPT Sandbox Agent
-- hands-on Make / HubSpot / Jotform construction
-- route scenarios to correct forms
-- controlled trial setup
-- one acceptance fixture at a time
-
-### Claude Sonnet
-Receives this contract.
-Task:
-- propose smallest safe technical construction
-- Make topology
-- schemas
-- race conditions
-- idempotency
-- failure handling
-- test plan
-- do not invent product behavior
-
-### GitHub Copilot
-Repository / code engineering:
-- schema validation
-- fixture validation
-- state-table validation
-- referral-lineage code review
-- preflight tooling
-- snapshots / hashes
-- diff validation
-- developer tests
-
-### Microsoft Copilot
-Microsoft ecosystem support:
-- Outlook / Microsoft 365 workflow review
-- communication transport-side operational support
-- Microsoft-side implementation checks where useful
-
-### Gemini
-Communications library:
-- bound thank-you variants
-- review-request variants
-- referral-request variants
-- referral reminders
-- referral thank-you
-- agent nudge language
-
-Gemini does not define state logic.
-Accepted copy should be versioned and reviewed before live use.
-
-### Claude Cowork
-Read-only live-system inspector:
-- actual Make topology
-- mappings
-- filters
-- HubSpot properties
-- connections
-- sandbox isolation
-- control gate
-- claims
-- suppression
-- referral mappings
-- final deployment audit
-
-## 26. Test Discipline
-
-Never create a test entry before defining:
-
-- test case name
+Never create a test record before defining:
+- test case
 - input
 - expected route
 - expected state
 - expected timestamp
-- expected task/nudge
-- expected email behavior
-- expected datastore behavior
+- expected agent email behavior
+- expected claim behavior
 - expected suppression
-- acceptance readback
-- rollback/stop condition
+- readback acceptance
+- stop/rollback condition
 
 One fixture at a time.
 
-No bulk synthetic entries.
+No production-customer tests.
 
-No production-customer testing.
+is_test_contact alone is not isolation.
 
-is_test_contact alone is not sufficient isolation.
+Do not use a different production predicate merely to make a test pass.
+Testing must preserve production business logic while the environment/transport is isolated deliberately.
 
-Before customer-facing testing verify:
-- sandbox trigger cannot consume production messages
-- real customer email cannot be sent
-- test identities are synthetic
-- no production task pollution
-- no unintended production contact mutation
+## 26. Make Change Discipline
 
-## 27. Make Change Discipline
-
-Before any Make modification:
+Before every Make modification:
 1. fresh scenario read
-2. verify scenario ID
+2. verify ID
 3. verify asset role
 4. capture lastEdit
-5. inspect target modules
-6. inspect handlers and topology
-7. define exactly what may change
+5. inspect exact modules in scope
+6. inspect topology/handlers
+7. define allowed change
 
 Prohibit:
-- retry:true on fail-closed/non-idempotent paths
 - unsupported and(
 - unsupported or(
+- retry:true on fail-closed/non-idempotent action paths
 
-After modification:
+After every modification:
 1. fresh read
 2. verify intended change
 3. verify untouched modules
@@ -809,213 +680,177 @@ After modification:
 
 Use expectedLastEdit where supported.
 
-## 28. GitHub Engineering Control Plane
+## 27. Blueprint Preflight
 
-Repository:
-OZZY-0224/RETENTIONOS-TOOLS
+Blueprint Preflight Gate V0 remains a static guardrail.
 
-Recommended structure:
+It checks known bad patterns such as:
+- retry:true
+- literal and(
+- literal or(
 
-retentionos/block-1-1/
-- README.md
-- architecture/
-- contracts/
-- schemas/
-- fixtures/
-- tests/
-- referral/
-- communications/
-- preflight/
-- snapshots/
-- diff-validator/
+Passing V0 does not certify a scenario.
+Human/system verification remains required before promotion.
 
-GitHub holds:
-- code
+## 28. AI Team Roles
+
+### Founder
+Product authority and final acceptance.
+
+### ChatGPT
+Central architecture, implementation coordination, counter-review, acceptance and promotion logic.
+
+### ChatGPT Sandbox Agent
+Hands-on Make / HubSpot / Jotform sandbox construction and controlled trials.
+
+### Claude Sonnet
+Construction engineer and implementation challenger.
+
+### GitHub Copilot
+Repository/code integrity:
 - schemas
-- contracts
 - fixtures
 - validators
-- static communication assets
+- snapshots
+- diff tooling
+- static tests
 - provenance
 
-GitHub does not hold the live customer referral database.
+Referral-lineage work is now Block 1.2, not Block 1.1.
 
-## 29. Acceptance Targets
+### Microsoft Copilot
+Microsoft 365 / Outlook-side workflow review and communication transport support.
 
-Minimum final proving set:
+### Gemini
+For Block 1.1:
+- internal agent email wording
+- outcome-reminder wording
+- sales-assistant communication variants
+
+Thank-you/review/referral copy moves to Block 1.2.
+
+### Claude Cowork
+Read-only live-system inspection and final deployment audit.
+
+## 29. Block 1.1 Acceptance Targets
 
 ### Initialization
 - valid Block 1 evidence initializes
 - initialization happens once
-- initialized records are not overwritten
-- stage timestamp derives from evidence
+- initialized record is never overwritten by bootstrap
+- stage timestamp derives from notes_last_contacted
 - test contacts excluded
 - pre-Gen3 back-book excluded
-- missing required completion evidence fails safely
+- first migration gate matches expected population
+- ongoing future eligible contacts initialize normally
 
-### Callback continuation
-- Callback Scheduled continuity
-- Same-Day Loading Payment continuity
-- Rate Change Follow Up continuity
-- explicit human-specified next follow-up
-- missing required follow-up timestamp fails visibly
-
-### Continuity Sweep
-- FOLLOWUP_OPEN before due -> no action
-- FOLLOWUP_OPEN due -> one claim / one nudge
-- duplicate concurrent sweep -> no duplicate nudge
-- abandoned claim can expire/recover
-- DEFERRED before due -> unchanged
-- DEFERRED expiry -> approved active transition
+### Follow-Up Agent
+- FOLLOWUP_OPEN before due -> no email
+- FOLLOWUP_OPEN at/after due -> one claim / one internal agent email
+- repeated sweep -> no duplicate email for same due condition
+- new valid next_follow_up_at -> later new email
+- internal email identifies RetentionOS Follow-Up Agent
+- email contains outcome-capture action
+- reminder sent does not mark workflow complete
+- outcome remains visibly pending until recorded
 
 ### Outcome Engine
+- canonical outcome accepted
+- invalid outcome rejected
+- invalid state rejected
+- illegal transition rejected
+- missing required timestamp rejected
 - Successful Bind -> BOUND
-- Priced Out -> LOST
 - Customer Declined -> LOST
-- DNC -> LOST + suppression
-- No Answer does not auto-Lost
-- malformed outcome -> no write
-- malformed state -> fail closed
-- illegal transition -> no write
+- Priced Out -> LOST
+- DNC -> allowed LOST transition + suppression
+- No Answer never auto-LOST
+- readback verifies destination state
+
+### Deferred
+- before deferred_until -> no agent action
+- at deferred_until -> FOLLOWUP_OPEN + one idempotent agent nudge
+- early customer return supersedes deferment
 
 ### Re-entry
-- early DEFERRED customer return -> active
 - active same type -> same pursuit
 - active changed type -> latest valid intent
-- LOST new valid intake -> reopen
-- BOUND new intake -> no automatic reopen
+- LOST valid re-entry -> active again with history preserved
+- BOUND re-entry -> no automatic reopen
+- DNC suppression persistence enforced until explicitly cleared under approved rule
 
 ### Governance
 - CLEAR permits
-- ENGAGED -> zero side effects
-- missing gate -> zero
-- malformed gate -> zero
+- ENGAGED blocks
+- missing gate blocks
+- malformed gate blocks
+- claim collision prevents duplicate nudge
+- expired abandoned claim recoverable
 
-### Bound closeout / referral
-- bound closeout occurs once
-- thank-you sends once
-- review CTA correct
-- referral CTA/token correct
-- referral submission attributed to immediate referrer
-- root attribution preserved
-- agent ownership preserved
-- new referral enters normal Block 1 / Block 1.1 flow
+## 30. Construction Order
 
-## 30. Construction Sequence
-
-One business objective at a time.
-
-1. Freeze this specification after peer review
-2. Sonnet implementation review
-3. ChatGPT counter-review
-4. Copilot repository/schema/fixture review
-5. Verify HubSpot write capability
-6. Create minimum HubSpot state fields
-7. Verify RetentionOS control datastore existence or create via supported Make UI/workflow
-8. Create inactive Continuity Sweep shell
-9. Add control gate
-10. Add bootstrap dry-run only
-11. Verify expected population
-12. Add controlled bootstrap write
-13. Verify readback and second-pass zero
-14. Create inactive Outcome / State Engine shell
-15. Implement terminal outcome mappings
-16. Implement active outcome mappings
-17. Implement explicit follow-up timestamp validation
-18. Implement FOLLOWUP_OPEN due branch
-19. Implement claims/idempotency
-20. Implement DEFERRED branch
-21. Implement DNC suppression
-22. Implement re-entry
-23. Isolate 6254611 before fresh end-to-end Block 1 testing
-24. Run one end-to-end fixture at a time
-25. Add bound closeout
-26. Freeze Gemini communication library
-27. Add referral form and attribution
-28. Add referral lineage
+1. Freeze this revised Block 1.1-only specification
+2. GitHub Copilot review of schemas / fixtures / guardrails
+3. Verify HubSpot write capability
+4. Create minimum required HubSpot fields
+5. Verify/create RETENTIONOS_CONTROL
+6. Create inactive Continuity Sweep shell
+7. Add control gate only
+8. Add read-only Option C bootstrap query
+9. Re-verify first migration count
+10. Define isolated bootstrap trial method
+11. Authorize controlled initialization write
+12. Verify destination state and second-pass zero
+13. Create inactive Outcome Intake + State Engine shell
+14. finalize controlled atomic outcome-input surface
+15. implement terminal mappings
+16. implement active mappings
+17. implement required timestamp validation
+18. implement FOLLOWUP_OPEN due branch
+19. implement claims/idempotency
+20. implement internal Follow-Up Agent email
+21. implement outcome-capture link
+22. verify reminder != completion
+23. implement DEFERRED expiry
+24. implement DNC suppression
+25. implement re-entry rules
+26. isolate 6254611 before fresh end-to-end Block 1 testing
+27. run one fixture at a time
+28. Gemini wording review for internal Follow-Up Agent messages
 29. Copilot final code/tooling audit
 30. Cowork live-system deployment audit
-31. Founder acceptance
-32. Promote / activate under RetentionOS control gate
+31. founder acceptance
+32. promotion/activation under RETENTIONOS_CONTROL
 
-## 31. Current Observed Live State
+## 31. Explicitly Out of Scope — Block 1.2
 
-Fresh observations before this spec was written:
+Do not build these inside Block 1.1:
+- thank-you email
+- rate-your-experience request
+- referral request
+- referral QR/link
+- referral forms
+- referral tokens
+- referral lineage
+- referral attribution
+- referral-generation follow-up
+- post-bind organic lead loop
 
-### HubSpot
-Present:
-- callback_type
-- lifecyclestage
-- notes_last_contacted
-- vcard_sent
-- hubspot_owner_id
-- is_test_contact
-- call_notes
+These belong to the new Block 1.2 Referral Agent lane.
 
-Not found:
-- callback_state
-- stage_entered_date
-- next_follow_up_at
-- callback_outcome
-- last_follow_up_at
-- deferred_until
-- review_required
-- retention_contact_suppressed
-- retention_contact_suppression_reason
+## 32. Current Next Action
 
-### Make 6221572
-- active production
-- lastEdit observed: 2026-09-13T04:27:13.752Z
-- 3 incomplete executions
-- not waiting on incomplete executions
-- certified topology present
-- connections currently reported healthy
+The first sandbox build directive is now:
+- create new inactive Block 1.1 Continuity Sweep shell
+- no production modification
+- no contact writes
+- no emails
+- no test submissions
+- verify control-gate construction path
+- add read-only Option C bootstrap query only after control path is understood
+- stop for review before any state-writing behavior
 
-### Make 6254611
-- inactive
-- lastEdit observed: 2026-09-12T23:54:47.744Z
-- 0 incomplete executions
-- structurally mirrors Block 1
-- must remain inactive until trigger isolation is proven
-
-### Existing Block 1.1 scenarios
-- none found by current Make scenario search
-
-### RetentionOS control datastore
-- current Make tool surface cannot enumerate/create datastores
-- existence remains UNVERIFIED
-- do not assume absent or present
-
-### HubSpot write/tool limitation
-Current connected HubSpot tool reported contact writes requiring reauthorization.
-Property-definition creation is not exposed through the current HubSpot connector surface.
-This is an implementation-access constraint, not a product gap.
-
-## 32. True Product Gaps
-
-At this checkpoint, no product decision blocks initial Option C bootstrap construction.
-
-Future possible gap:
-- BOUND re-entry that cannot be distinguished at contact level may require opportunity/quote identity.
-Do not solve unless V1 is blocked.
-
-## 33. Immediate Next Engineering Step
-
-TYPE B / TYPE C boundary:
-
-Before live construction:
-1. send this spec to Sonnet for implementation review
-2. review Sonnet response against the product contract
-3. let GitHub Copilot validate repo contracts / fixtures / schemas
-4. do not create test entries yet
-5. do not modify production
-6. prepare the sandbox agent's first bounded directive:
-   - create inactive Continuity Sweep shell
-   - control gate
-   - bootstrap dry-run only
-   - no contact writes
-
-## 34. Operating Principle
+## 33. Operating Principle
 
 Preserve accepted behavior.
 Inspect before writing.
@@ -1023,4 +858,5 @@ Build the smallest correct thing.
 Fail closed when uncertain.
 Verify destination, not just execution.
 Do not invent product behavior.
+A reminder is not a completed follow-up.
 Close accepted work and move forward.
