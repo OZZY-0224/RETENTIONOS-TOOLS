@@ -1,6 +1,6 @@
-# RetentionOS — Block 1.1 Follow-Up Agent Implementation Specification v1.1
+# RetentionOS — Block 1.1 Follow-Up Agent Implementation Specification v1.2
 
-Status: AUTHORITATIVE IMPLEMENTATION BASELINE — BLOCK 1.2 SPLIT APPLIED
+Status: AUTHORITATIVE IMPLEMENTATION BASELINE — SANDBOX SHELL ACCEPTED / FINALIZATION IN PROGRESS
 Branch: block-1-1-v1-spec
 Product authority: Founder
 Architecture coordinator: ChatGPT
@@ -453,23 +453,30 @@ Do not use:
 Bootstrap never overwrites an initialized record.
 
 ### First controlled migration gate
-Previously measured expected eligible count:
-6
 
-Before the first production initialization write:
-- re-run the final predicate
-- expected count must equal exactly 6
-- otherwise halt and investigate
+Historical evidence once showed 6 eligible contacts, but fresh pre-schema verification on 2026-09-15 returned 15 contacts using the three currently available evidence filters:
 
-After that controlled migration:
-- same predicate should return 0
+- is_test_contact HAS_PROPERTY
+- is_test_contact NEQ true
+- notes_last_contacted HAS_PROPERTY
+
+Because callback_state does not yet exist, that 15-contact count is not the final migration population either.
+
+Authoritative migration rule:
+
+- create/verify callback_state first
+- run the full production predicate immediately before migration
+- declare the fresh exact result as the controlled first-migration population
+- if the write target changes before execution, halt and re-read
+- after successful initialization, the same full predicate should return 0
+
+The migration count itself is runtime evidence, not permanent product behavior.
 
 ### Ongoing production bootstrap
-The exact-6 rule is not permanent.
 
-After rollout, newly completed legitimate Block 1 contacts satisfying the same predicate must initialize normally.
+After the first controlled migration, newly completed legitimate Block 1 contacts satisfying the same predicate initialize normally.
 
-A future non-zero eligible count is expected normal intake, not automatically an exception.
+Any future eligible count is normal standing intake and is not subject to the first-migration exact-count gate.
 
 ## 20. HubSpot Schema
 
@@ -540,6 +547,18 @@ Do not create follow_up_owner unless HubSpot ownership proves insufficient.
 ## 21. Runtime Architecture
 
 Two new Make scenarios.
+
+Observed sandbox state:
+- Scenario 6278154
+- BLOCK 1.1 — FOLLOW-UP AGENT — CONTINUITY SWEEP — SANDBOX
+- inactive
+- current shell contains one BasicTrigger only
+- no connections
+- no handlers
+- no side effects
+- first shell build accepted
+
+
 
 ### Scenario A — Outcome Intake + State Engine
 Event-driven.
@@ -617,7 +636,48 @@ CLAIMED -> EXPIRED / eligible for controlled recovery
 Claim TTL is an engineering parameter.
 Do not hardcode an arbitrary product value before observing actual runtime duration and selecting a safety margin.
 
-## 24. Exceptions and Event History
+## 24. Anthropic Intelligence Layer
+
+Anthropic is part of the accepted Block 1.1 architecture, but it is not an authority layer.
+
+Purpose:
+- convert a small amount of trusted CRM context into a concise internal sales brief
+- improve the usefulness of the Follow-Up Agent email without moving state logic into AI
+
+Call discipline:
+- call only after a legitimate due-condition claim succeeds
+- never call Anthropic on every sweep
+- cache the accepted result on the claim/event context so transport recovery does not require another AI call
+- if AI enrichment fails, use the deterministic RetentionOS email template and continue the reminder path
+- AI failure must not block an otherwise valid follow-up notification
+
+Minimal V1 input target:
+- reason
+- callback_type
+- call_notes
+- explicit due/deferment timestamp where relevant
+
+Minimal V1 output target:
+- brief
+- action
+
+Anthropic must never create or decide:
+- callback_state
+- callback_outcome
+- BOUND / LOST / DNC
+- next_follow_up_at
+- deferred_until
+- claim_key
+- outcome_capture_token
+- submission_id
+- legal transition validity
+
+HubSpot automation/token discipline:
+- HubSpot remains the operational CRM state store
+- RetentionOS behavior should not depend on HubSpot workflow automation when Make can own the behavior cleanly
+- preserve portability and low HubSpot automation-token consumption
+
+## 26. Exceptions and Event History
 
 Recommended lightweight support:
 
@@ -629,7 +689,7 @@ RETENTIONOS_CONTINUITY_EVENTS
 
 These are support systems and must not delay proving the core initialization slice.
 
-## 25. Test Discipline
+## 26. Test Discipline
 
 Never create a test record before defining:
 - test case
@@ -652,7 +712,7 @@ is_test_contact alone is not isolation.
 Do not use a different production predicate merely to make a test pass.
 Testing must preserve production business logic while the environment/transport is isolated deliberately.
 
-## 26. Make Change Discipline
+## 27. Make Change Discipline
 
 Before every Make modification:
 1. fresh scenario read
@@ -680,7 +740,7 @@ After every modification:
 
 Use expectedLastEdit where supported.
 
-## 27. Blueprint Preflight
+## 28. Blueprint Preflight
 
 Blueprint Preflight Gate V0 remains a static guardrail.
 
@@ -692,7 +752,7 @@ It checks known bad patterns such as:
 Passing V0 does not certify a scenario.
 Human/system verification remains required before promotion.
 
-## 28. AI Team Roles
+## 29. AI Team Roles
 
 ### Founder
 Product authority and final acceptance.
@@ -732,7 +792,7 @@ Thank-you/review/referral copy moves to Block 1.2.
 ### Claude Cowork
 Read-only live-system inspection and final deployment audit.
 
-## 29. Block 1.1 Acceptance Targets
+## 30. Block 1.1 Acceptance Targets
 
 ### Initialization
 - valid Block 1 evidence initializes
@@ -787,7 +847,7 @@ Read-only live-system inspection and final deployment audit.
 - claim collision prevents duplicate nudge
 - expired abandoned claim recoverable
 
-## 30. Construction Order
+## 31. Construction Order
 
 1. Freeze this revised Block 1.1-only specification
 2. GitHub Copilot review of schemas / fixtures / guardrails
@@ -822,7 +882,7 @@ Read-only live-system inspection and final deployment audit.
 31. founder acceptance
 32. promotion/activation under RETENTIONOS_CONTROL
 
-## 31. Explicitly Out of Scope — Block 1.2
+## 32. Explicitly Out of Scope — Block 1.2
 
 Do not build these inside Block 1.1:
 - thank-you email
@@ -838,7 +898,7 @@ Do not build these inside Block 1.1:
 
 These belong to the new Block 1.2 Referral Agent lane.
 
-## 32. Current Next Action
+## 33. Current Next Action
 
 The first sandbox build directive is now:
 - create new inactive Block 1.1 Continuity Sweep shell
@@ -850,7 +910,7 @@ The first sandbox build directive is now:
 - add read-only Option C bootstrap query only after control path is understood
 - stop for review before any state-writing behavior
 
-## 33. Operating Principle
+## 34. Operating Principle
 
 Preserve accepted behavior.
 Inspect before writing.
