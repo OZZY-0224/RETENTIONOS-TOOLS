@@ -39,19 +39,18 @@ Observed:
 - last_follow_up_at absent -> HOLD
 - follow_up_owner absent -> reuse hubspot_owner_id
 - callback_state absence is the exact blocker for constructing the final bootstrap predicate
-- no reusable existing property satisfies the callback_state contract
+- no reusable existing property satisfies callback_state
 - hs_lead_status is not equivalent
 - call_disposition remains retired/untouched
 
-## Current Step
+### Step 4 — Create callback_state
+BLOCKED ON CHATGPT HUBSPOT SURFACE / AUTHORIZED VIA EXTERNAL HUBSPOT PROPERTY UI
 
-### Step 4 — Create callback_state only
-AUTHORIZED
-
-Exact contract:
+Approved contract:
 - CONTACT property
 - internal name: callback_state
-- enumeration
+- label: Callback State
+- single-select enumeration
 - values:
   - followup_open
   - awaiting_customer
@@ -59,11 +58,16 @@ Exact contract:
   - bound
   - lost
 
-No other property creation is authorized in this step.
+Current action:
+- execute bounded Cowork HubSpot property setup
+- create callback_state only
+- read back and verify
+- no contact writes
+- no other schema changes
 
 ## Next Gate
 
-After callback_state creation and readback:
-- re-evaluate bootstrap constructibility
-- authorize the next smallest schema property slice separately
-- do not run initialization until the complete minimum bootstrap schema and control path are both safe
+After callback_state is created and verified:
+- confirm full bootstrap predicate becomes constructible
+- authorize the next smallest schema slice separately
+- do not initialize contacts until required bootstrap schema and control path are both safe
